@@ -821,19 +821,20 @@ main(){
     rawList=$TARGETDIR/tmp/custom_list.txt
     touch $rawList
   #if [[ -n "$fuzz" || -n "$brute" ]]; then
-    mkdir $TARGETDIR/ffuf/
-    mkdir $TARGETDIR/gospider/
-    mkdir $TARGETDIR/page-fetched/
-    touch $TARGETDIR/page-fetched/pagefetcher_output.txt
+    if [ ! -d $TARGETDIR/ffuf/]; then mkdir $TARGETDIR/ffuf/ fi
+    if [ ! -d $TARGETDIR/gospider/]; then mkdir $TARGETDIR/gospider/ fi
+    if [ ! -d $TARGETDIR/page-fetched/]; then mkdir $TARGETDIR/page-fetched/ fi
     # to work with gf ssrf output
+    if [ ! -f $TARGETDIR/page-fetched/pagefetcher_output.txt]; then touch $TARGETDIR/page-fetched/pagefetcher_output.txt fi
+       
     customSsrfQueryList=$TARGETDIR/tmp/custom_ssrf_list.txt
-    touch $customSsrfQueryList
+    if [! -f $customSsrfQueryList]; then touch $customSsrfQueryList fi
     # to work with gf lfi output
     customLfiQueryList=$TARGETDIR/tmp/custom_lfi_list.txt
-    touch $customLfiQueryList
+    if [! -f $customLfiQueryList]; then touch $customLfiQueryList fi
     # to work with gf ssrf output
     customSqliQueryList=$TARGETDIR/tmp/custom_sqli_list.txt
-    touch $customSqliQueryList
+    if [! -f $customSqliQueryList]; then touch $customSqliQueryList fi
   fi
 
   # ffuf dir uses to store brute output
