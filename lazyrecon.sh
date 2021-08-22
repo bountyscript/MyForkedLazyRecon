@@ -851,7 +851,9 @@ main(){
   fi
 
   # nuclei output
-  mkdir $TARGETDIR/nuclei/
+  if [ ! -d "$TARGETDIR/nuclei/" ]; then 
+    mkdir $TARGETDIR/nuclei/
+  fi
 
   if [ "$wildcard" = "1" ]; then
     # gau/waybackurls output
