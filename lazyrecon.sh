@@ -699,51 +699,48 @@ ffufbrute(){
 }
 
 recon(){
-  enumeratesubdomains $1
-
-  if [[ -n "$mad" && ( -n "$single" || -n "$wildcard" ) ]]; then
+  if [[ -n "$wildcard" ]]; then
+    enumeratesubdomains $1
+    #if [[ -n "$mad" && ( -n "$single" || -n "$wildcard" ) ]]; then
     checkwaybackurls $1
+    #fi
+    sortsubdomains $1
+    dnsbruteforcing $1
+    permutatesubdomains $1
+    dnsprobing $1
+    checkhttprobe $1 &
+    PID_HTTPX=$!
+    echo "wait PID_HTTPX=$PID_HTTPX"
+    wait $PID_HTTPX
   fi
 
-  sortsubdomains $1
-  dnsbruteforcing $1
-  permutatesubdomains $1
-
-  dnsprobing $1
-  checkhttprobe $1 &
-  PID_HTTPX=$!
-  echo "wait PID_HTTPX=$PID_HTTPX"
-  wait $PID_HTTPX
-
-  if [[ -n "$fuzz" || -n "$brute" ]]; then
+  if [[ -n "$mad" ]]; then
     gospidertest $1
     pagefetcher $1
     custompathlist $1
-  fi
-
-  screenshots $1 &
-  PID_SCREEN=$!
-  echo "Waiting for screenshots ${PID_SCREEN}"
-  wait $PID_SCREEN
-
-  nucleitest $1 &
-  PID_NUCLEI=$!
-  echo "Waiting for nucleitest ${PID_NUCLEI}..."
-  wait $PID_NUCLEI
-
-  if [[ -n "$brute" ]]; then
-    ffufbrute $1 # disable/enable yourself (--single preferred) because manually work need on targets without WAF
-  fi
-
-  if [[ -n "$fuzz" ]]; then
     ssrftest $1
     lfitest $1
     sqlmaptest $1
+    bypass403test $1
   fi
 
-  # bypass403test $1
-  masscantest $1
+  if [[ -n "$nuc" ]]; then
+    screenshots $1 &
+    PID_SCREEN=$!
+    echo "Waiting for screenshots ${PID_SCREEN}"
+    wait $PID_SCREEN
 
+    nucleitest $1 &
+    PID_NUCLEI=$!
+    echo "Waiting for nucleitest ${PID_NUCLEI}..."
+    wait $PID_NUCLEI
+    masscantest $1
+  fi
+  
+  if [[ -n "$fuzz" && -n "$brute" ]]; then
+    ffufbrute $1 # disable/enable yourself (--single preferred) because manually work need on targets without WAF
+
+  fi
   echo "Recon done!"
 }
 
@@ -801,7 +798,7 @@ main(){
   [[ -d $TARGETDIR/tmp ]] || mkdir $TARGETDIR/tmp
   echo "target dir created: $TARGETDIR"
 
-  if [[ -n "$fuzz" ]]; then
+  if [[ -n "$fuzz" || -n "$mad" || -n "$brute" || -n "$nuc" ]]; then
     # Listen server
     interactsh-client -v &> $TARGETDIR/_listen_server.log &
     SERVER_PID=$!
@@ -816,23 +813,18 @@ main(){
   echo "$@" >> $TARGETDIR/_call_params.txt
   echo "$@" >> ./_call.log
 
-
-  # merges gospider and page-fetch outputs
-  queryList=$TARGETDIR/tmp/query_list.txt
-  touch $queryList
-  # scope filtered list
-  rawList=$TARGETDIR/tmp/custom_list.txt
-  touch $rawList
-
-  if [[ -n "$fuzz" || -n "$brute" ]]; then
+  if [[ -n "$mad" ]]; then
+    # merges gospider and page-fetch outputs
+    queryList=$TARGETDIR/tmp/query_list.txt
+    touch $queryList
+    # scope filtered list
+    rawList=$TARGETDIR/tmp/custom_list.txt
+    touch $rawList
+  #if [[ -n "$fuzz" || -n "$brute" ]]; then
     mkdir $TARGETDIR/ffuf/
     mkdir $TARGETDIR/gospider/
     mkdir $TARGETDIR/page-fetched/
     touch $TARGETDIR/page-fetched/pagefetcher_output.txt
-  fi
-
-  # used for fuzz and bruteforce
-  if [[ -n "$fuzz" ]]; then
     # to work with gf ssrf output
     customSsrfQueryList=$TARGETDIR/tmp/custom_ssrf_list.txt
     touch $customSsrfQueryList
@@ -845,7 +837,7 @@ main(){
   fi
 
   # ffuf dir uses to store brute output
-  if [[ -n "$brute" ]]; then
+  if [[ -n "$fuzz" ]]; then
     customFfufWordList=$TARGETDIR/tmp/custom_ffuf_wordlist.txt
     touch $customFfufWordList
     cp $DIRSEARCHWORDLIST $customFfufWordList
@@ -861,19 +853,20 @@ main(){
   # nuclei output
   mkdir $TARGETDIR/nuclei/
 
-  if [ "$mad" = "1" ]; then
+  if [ "$wildcard" = "1" ]; then
     # gau/waybackurls output
     mkdir $TARGETDIR/wayback/
-  fi
-  # subfinder list of subdomains
-  touch $TARGETDIR/subfinder-list.txt 
-  # assetfinder list of subdomains
-  touch $TARGETDIR/assetfinder-list.txt
-  # all assetfinder/subfinder finded domains
-  touch $TARGETDIR/enumerated-subdomains.txt
-  # gau/waybackurls list of subdomains
-  touch $TARGETDIR/wayback-subdomains-list.txt
+    
+    # subfinder list of subdomains
+    touch $TARGETDIR/subfinder-list.txt 
+    # assetfinder list of subdomains
+    touch $TARGETDIR/assetfinder-list.txt
+    # all assetfinder/subfinder finded domains
+    touch $TARGETDIR/enumerated-subdomains.txt
+    # gau/waybackurls list of subdomains
+    touch $TARGETDIR/wayback-subdomains-list.txt
 
+  fi
   # clean up when script receives a signal
   trap clean_up SIGINT
 
@@ -942,6 +935,8 @@ checkargs(){
                                   ;;
           -b | --brute )          brute="1"
                                   ;;
+          -n | --nuc )            nuc="1"
+                                  ;;
           -v | --vps )            vps="1"
                                   ;;
           -q | --quiet )          quiet="1"
@@ -989,6 +984,7 @@ if [ "$quiet" == "" ]; then
   echo "Check params \$fuzz: $fuzz"
   echo "Check params \$mad: $mad"
   echo "Check params \$vps: $vps"
+  echo "Check params \$nuc: $nuc"
   echo "Check params \$alt: $alt"
   echo "Check params \$wildcard: $wildcard"
   echo "Check params \$discord: $discord"
@@ -997,7 +993,7 @@ fi
 
 
 # to avoid cleanup or `sort -u` operation
-foldername=recon-$(date +"%y-%m-%d_%H-%M-%S")
+foldername=recon
 
 # kill listen server
 kill_listen_server(){
