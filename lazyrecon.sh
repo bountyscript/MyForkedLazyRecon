@@ -836,17 +836,17 @@ main(){
       touch $TARGETDIR/page-fetched/pagefetcher_output.txt 
     fi
     customSsrfQueryList=$TARGETDIR/tmp/custom_ssrf_list.txt
-    if [! -f $customSsrfQueryList ]; then 
+    if [ ! -f $customSsrfQueryList ]; then 
       touch $customSsrfQueryList 
     fi
     # to work with gf lfi output
     customLfiQueryList=$TARGETDIR/tmp/custom_lfi_list.txt
-    if [! -f $customLfiQueryList ]; then 
+    if [ ! -f $customLfiQueryList ]; then 
       touch $customLfiQueryList 
     fi
     # to work with gf ssrf output
     customSqliQueryList=$TARGETDIR/tmp/custom_sqli_list.txt
-    if [! -f $customSqliQueryList ]; then 
+    if [ ! -f $customSqliQueryList ]; then 
       touch $customSqliQueryList 
     fi
   fi
@@ -854,7 +854,7 @@ main(){
   # ffuf dir uses to store brute output
   if [[ -n "$fuzz" ]]; then
     customFfufWordList=$TARGETDIR/tmp/custom_ffuf_wordlist.txt
-    if [! -f $customFfufWordList ]; then 
+    if [ ! -f $customFfufWordList ]; then 
       touch $customFfufWordList 
     fi
     cp $DIRSEARCHWORDLIST $customFfufWordList
@@ -863,7 +863,7 @@ main(){
   # used to save target specific list for alterations (shuffledns, altdns)
   if [ "$alt" = "1" ]; then
     customSubdomainsWordList=$TARGETDIR/tmp/custom_subdomains_wordlist.txt
-    if [! -f $customSubdomainsWordList ]; then 
+    if [ ! -f $customSubdomainsWordList ]; then 
       touch $customSubdomainsWordList
     fi
     cp $ALTDNSWORDLIST $customSubdomainsWordList
