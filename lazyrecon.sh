@@ -325,7 +325,7 @@ bypass403test(){
 
 gospidertest(){
   if [ -s $TARGETDIR/3-all-subdomain-live-scheme.txt ]; then
-    echo
+    
     echo "[$(date | awk '{ print $4}')] [gospider] Web crawling..."
     gospider -q -r -S $TARGETDIR/3-all-subdomain-live-scheme.txt -o $TARGETDIR/gospider -c 40 -t 40 1> /dev/null
 
