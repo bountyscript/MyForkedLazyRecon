@@ -821,33 +821,50 @@ main(){
     rawList=$TARGETDIR/tmp/custom_list.txt
     touch $rawList
   #if [[ -n "$fuzz" || -n "$brute" ]]; then
-    if [ ! -d $TARGETDIR/ffuf/ ]; then mkdir $TARGETDIR/ffuf/ fi
-    if [ ! -d $TARGETDIR/gospider/ ]; then mkdir $TARGETDIR/gospider/ fi
-    if [ ! -d $TARGETDIR/page-fetched/ ]; then mkdir $TARGETDIR/page-fetched/ fi
+    if [ ! -d $TARGETDIR/ffuf/ ]; then 
+      mkdir $TARGETDIR/ffuf/ 
+    fi
+    if [ ! -d $TARGETDIR/gospider/ ]; then 
+      mkdir $TARGETDIR/gospider/ 
+    fi
+    if [ ! -d $TARGETDIR/page-fetched/ ]; then 
+      mkdir $TARGETDIR/page-fetched/ 
+    fi
     # to work with gf ssrf output
-    if [ ! -f $TARGETDIR/page-fetched/pagefetcher_output.txt ]; then touch $TARGETDIR/page-fetched/pagefetcher_output.txt fi
-       
+    if [ ! -f $TARGETDIR/page-fetched/pagefetcher_output.txt ]; then 
+      touch $TARGETDIR/page-fetched/pagefetcher_output.txt 
+    fi
     customSsrfQueryList=$TARGETDIR/tmp/custom_ssrf_list.txt
-    if [! -f $customSsrfQueryList ]; then touch $customSsrfQueryList fi
+    if [! -f $customSsrfQueryList ]; then 
+      touch $customSsrfQueryList 
+    fi
     # to work with gf lfi output
     customLfiQueryList=$TARGETDIR/tmp/custom_lfi_list.txt
-    if [! -f $customLfiQueryList ]; then touch $customLfiQueryList fi
+    if [! -f $customLfiQueryList ]; then 
+      touch $customLfiQueryList 
+    fi
     # to work with gf ssrf output
     customSqliQueryList=$TARGETDIR/tmp/custom_sqli_list.txt
-    if [! -f $customSqliQueryList ]; then touch $customSqliQueryList fi
+    if [! -f $customSqliQueryList ]; then 
+      touch $customSqliQueryList 
+    fi
   fi
 
   # ffuf dir uses to store brute output
   if [[ -n "$fuzz" ]]; then
     customFfufWordList=$TARGETDIR/tmp/custom_ffuf_wordlist.txt
-    touch $customFfufWordList
+    if [! -f $customFfufWordList ]; then 
+      touch $customFfufWordList 
+    fi
     cp $DIRSEARCHWORDLIST $customFfufWordList
   fi
 
   # used to save target specific list for alterations (shuffledns, altdns)
   if [ "$alt" = "1" ]; then
     customSubdomainsWordList=$TARGETDIR/tmp/custom_subdomains_wordlist.txt
-    touch $customSubdomainsWordList
+    if [! -f $customSubdomainsWordList ]; then 
+      touch $customSubdomainsWordList
+    fi
     cp $ALTDNSWORDLIST $customSubdomainsWordList
   fi
 
