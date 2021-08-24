@@ -697,6 +697,8 @@ ffufbrute(){
     # interlace --silent -tL $TARGETDIR/3-all-subdomain-live-scheme.txt -threads 10 -c "ffuf -timeout 7 -u _target_/FUZZ -mc 200,201,202,401 -fs 0 \-w $customFfufWordList -t $DIRSEARCHTHREADS -p 0.5-2.5 -recursion -recursion-depth 2 -H \"User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 11_2_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.192 Safari/537.36\" \-o $TARGETDIR/ffuf/_cleantarget_.html -of html -or true"
     ffuf -timeout 7 -u HOST/PATH -mc 200,201,202,401 -fs 0 -w $TARGETDIR/3-all-subdomain-live-scheme.txt:HOST -w $customFfufWordList:PATH -t $DIRSEARCHTHREADS -p 0.5-2.5 -H "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 11_2_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.192 Safari/537.36" -o $TARGETDIR/ffuf/directory-brute.html -of html -or true
     echo "[$(date | awk '{ print $4}')] directory bruteforce done."
+    echo "[$(date | awk '{ print $4}')] s3 bruteforce using ffuf..."
+    ffuf -u http://FUZZ.s3.amazonaws.com -w $TARGETDIR/3-all-subdomain-live-scheme.txt:HOST -t $DIRSEARCHTHREADS -o $TARGETDIR/ffuf/s3-brute.txt
 }
 
 recon(){
